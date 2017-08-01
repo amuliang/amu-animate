@@ -14,7 +14,7 @@
 	getValue: function() { return this.target[this.prop]; }, // 获取值，这个函数实际上可能并没有用到
 	setValue: function(value) { this.target[this.prop] = value; }, // 设置值
 	dimension: 1, // 维度
-	animateMode: "linear", // 动画插值模式，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
+	interpolationType: "linear", // 动画插值模式，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
 	interval: 30, // 每帧时长
 	duration: 500, // 持续时间
 	loopType: "none", // 循环类型：none无循环， repeat重复循环， increment累加循环，reverse反向循环
@@ -73,7 +73,7 @@ var interval = 5; // 默认每5毫秒刷新一次
 var animate_si = null; // setInterval句柄
 
 var animate = {
-	version: "v1.1.0",
+	version: "v1.1.1",
 	status: "normal",
 	count: 0,
 	queue: [],
@@ -144,9 +144,10 @@ var animate = {
 			for(var i = 0; i < config.keyFrames.length; i++) {
 				config.duration += config.keyFrames[i].duration;
 			}
+			if(config.keyFrames[0].duration == 0) config.startValue = config.keyFrames[0].value;
 			config.endValue = config.keyFrames[config.keyFrames.length - 1].value;
 		}
-		if(!animate.interpolatingFunction[config.animateMode]) config.animateMode = "linear";
+		if(!animate.interpolatingFunction[config.interpolationType]) config.interpolationType = "linear";
 		var dimension, startValue;
 		if(typeof config.endValue == "number") {
 			dimension = 1;
@@ -170,7 +171,7 @@ var animate = {
 			getValue: function() { return this.target[this.prop]; },
 			setValue: function(value) { this.target[this.prop] = value; },
 			dimension: dimension,
-			animateMode: "linear",
+			interpolationType: "linear",
 			interval: 30,
 			delay: 0,
 			duration: 500,
@@ -179,7 +180,7 @@ var animate = {
 			interpolatingFunction: null
 		}, config);
 
-		item.setValue(item.startValue); // 设置初始值
+		item.setValue(item.formatValue(item.startValue)); // 设置初始值
 
 		pushQueue(item);
 	},
@@ -290,13 +291,13 @@ function refreshQueue() {
 			if(item.status == "pause") {
 				dealWithPause(item);
 			}else if(animate.count - item.prevFrameTime >= item.interval) {
-					activeQueue.push(item);
+				activeQueue.push(item);
 				if(item.status == "animate") {
 					values.push(getNewValue(item));
 				}else if(item.status == "looping") {
 					values.push(dealWithCache(item));
 				}
-				item.prevFrameTime = animate.count;
+				item.prevFrameTime = item.prevFrameTime + item.interval;
 				if(item.prevFrameTime >= item.endTime) {
 					dealWithLoop(item);
 				}
@@ -323,7 +324,7 @@ function getNewValue(item) {
 	var duration, endTime = item.startTime + item.pauseTime;
 	for(var i = 0; i < item.keyFrames.length; i++) {
 		endTime += item.keyFrames[i].duration;
-		if(endTime >= animate.count - item.interval) {
+		if(endTime > animate.count - interval) {
 			duration = item.keyFrames[i].duration;
 			endValue = item.keyFrames[i].value;
 			break;
@@ -340,7 +341,7 @@ function getNewValue(item) {
 	currentSegment.endValue = endValue;
 	currentSegment.duration = duration;
 
-	var value = animate.interpolatingFunction[item.animateMode](animate, item, currentSegment);
+	var value = animate.interpolatingFunction[item.interpolationType](animate, item, currentSegment);
 	value = item.dimension == 1 ? value[0] : value;
 	if(item.loopType != "none" && item.loopTimes != 1) item.cache.data.push(arrMinus(value, item.cache.baseValue));
 	return value;
@@ -378,6 +379,7 @@ function changeItemStatus(id, status) {
 function dealWithPause(item) {
 	item.pauseTime += interval;
 	item.endTime += interval;
+	item.prevFrameTime += interval;
 }
 // 处理缓存，缓存取值
 function dealWithCache(item) {
@@ -456,7 +458,15 @@ animate.formats = {
 				Math.round(value[1]) + "," + 
 				Math.round(value[2]) + "," + 
 				value[3] + ")";
+		},
+		rotate: function(value) { 
+			return "rotate(" + Math.round(value) + "deg)";
 		}
+	},
+	number: {
+		round: function(value) { return Math.round(value); },
+		floor: function(value) { return Math.floor(value); },
+		ceil: function(value) { return Math.ceil(value); }
 	}
 }
 

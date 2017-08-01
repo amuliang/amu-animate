@@ -2,47 +2,203 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Document</title>
+<title>amu-animate</title>
 <style type="text/css">
 	* { margin:0; padding:0; }
+	.card {
+		margin: 10px;
+		padding: 10px 5px;
+		border: 1px solid #ddd;
+	}
+	h2 {
+		margin-bottom: 10px;
+		padding: 5px;
+		color:dodgerblue;
+		width: 200px;
+		border-bottom: 1px solid #ddd;
+	}
+	button {
+		background-color:lightseagreen;
+		color: white;
+		padding: 5px 10px;
+		border: 0;
+		border-radius: 5px;
+	}
 </style>
 <script type="text/javascript" src="animate.js"></script>
 </head>
-<body style="background-color: #222">
-	<div id="block1" style="background: blue;height: 100px;"></div>
-	<div id="block2" style="background: orange;height: 100px;"></div>
-	<div id="block3" style="background: pink;height: 100px;"></div>
-	<div id="block4" style="background: yellow;height: 100px;"></div>
+<body>
+	<div class="card">
+		<h2>插值方式</h2>
+		<div id="interpolationType-linear" style="background: greenyellow;">linear 线性</div>
+		<div id="interpolationType-fade" style="background: orange;">fade 淡入淡出</div>
+		<div id="interpolationType-fadeIn" style="background: pink;">fadeIn 淡入</div>
+		<div id="interpolationType-fadeOut" style="background: yellow;">fadeOut 淡出</div>
+		<script type="text/javascript">
+			animate.mulPush( [
+				{
+					target: document.getElementById("interpolationType-linear").style,
+					interpolationType: "linear"
+				}, 
+				{
+					target: document.getElementById("interpolationType-fade").style,
+					interpolationType: "fade"
+				}, 
+				{
+					target: document.getElementById("interpolationType-fadeIn").style,
+					interpolationType: "fadeIn"
+				}, 
+				{
+					target: document.getElementById("interpolationType-fadeOut").style,
+					interpolationType: "fadeOut"
+				}
+			], {
+				prop: "width",
+				formatValue: animate.formats.css.px,
+				startValue: 150,
+				keyFrames: [
+					{ value: 500, duration: 1000 },
+					{ value: 500, duration: 500 }
+				],
+				loopType: "repeat",
+				loopTimes: 0,
+				interval: 25
+			});
+		</script>
+	</div>
+	<div class="card">
+		<h2>循环方式</h2>
+		<div>repeat 重复</div><div id="loopType-repeat">0</div>
+		<div>increment 递增</div><div id="loopType-increment">0</div>
+		<div>reverse 反向</div><div id="loopType-reverse">0</div>
+		<script type="text/javascript">
+			animate.mulPush([
+				{
+					target: document.getElementById("loopType-repeat"),
+					loopType: "repeat"
+				},
+				{
+					target: document.getElementById("loopType-increment"),
+					loopType: "increment"
+				},
+				{
+					target: document.getElementById("loopType-reverse"),
+					loopType: "reverse"
+				},
+			], {
+				prop: "innerHTML",
+				keyFrames: [
+					{ value: 100, duration: 5000 }
+				],
+				formatValue: animate.formats.number.round,
+				loopTimes: 0
+			});
+		</script>
+	</div>
+	<div class="card">
+		<h2>多关键帧</h2>
+		<div id="keyFrames" style="background-color:lawngreen; width:20px; height:20px;"></div>
+		<script type="text/javascript">
+			animate.push({
+				target: document.getElementById("keyFrames").style,
+				prop: "marginLeft",
+				delay: 500,
+				keyFrames: [
+					{ value: 100, duration: 1000 },
+					{ value: 500, duration: 600 },
+					{ value: 450, duration: 500 },
+					{ value: 300, duration: 800 },
+					{ value: 50, duration: 500 },
+					{ value: 250, duration: 300 },
+					{ value: 250, duration: 500 }
+				],
+				formatValue: animate.formats.css.px,
+				interpolationType: "fade",
+				loopType: "repeat",
+				loopTimes: 0
+			});
+		</script>
+	</div>
+	<div class="card">
+		<h2>动画系统控制</h2>
+		<button id="pause">暂停动画系统</button>
+		<button id="continue">继续运行系统</button>
+		<script type="text/javascript">
+			document.getElementById("pause").onclick = function() {
+				animate.pause();
+			}
+			document.getElementById("continue").onclick = function() {
+				animate["continue"]();
+			}
+		</script>
+	</div>
+	<div class="card">
+		<h2>单动画控制</h2>
+		<div id="red-block" style="background-color:red; width:20px; height:20px;"></div>
+		<div id="blue-block" style="background-color:blue; width:20px; height:20px;"></div>
+		<button id="red-control">红色方块 暂停/继续</button>
+		<button id="blue-control">蓝色方块 暂停/继续</button>
+		<script type="text/javascript">
+			animate.mulPush([
+				{
+					id: "red-block-item",
+					target: document.getElementById("red-block").style
+				},
+				{
+					id: "blue-block-item",
+					target: document.getElementById("blue-block").style
+				}
+			], {
+				prop: "marginLeft",
+				keyFrames: [
+					{ value: 500, duration: 2000 }
+				],
+				formatValue: animate.formats.css.px,
+				loopType: "reverse",
+				loopTimes: 0
+			});
+
+			document.getElementById("red-control").onclick = function() {
+				var item = animate.findById("red-block-item");
+				if(item.status == "pause") animate.continueById("red-block-item");
+				else animate.pauseById("red-block-item");
+			}
+			document.getElementById("blue-control").onclick = function() {
+				var item = animate.findById("blue-block-item");
+				if(item.status == "pause") animate.continueById("blue-block-item");
+				else animate.pauseById("blue-block-item");
+			}
+		</script>
+	</div>
+	<div class="card">
+		<style>
+			.clock-pointer {
+				position:absolute;
+				top:152px;
+				height:4px;
+				margin: 0 10px;
+				border-right:140px solid black;
+				padding-left:140px;
+			}
+		</style>
+		<h2>钟表动画</h2>
+		<div style="position:relative;width:300px; height:300px; border:5px solid black; border-radius:150px;">
+			<div id="clock-pointer" class="clock-pointer"></div>
+		</div>
+		<script type="text/javascript">
+			animate.push({
+				target: document.getElementById("clock-pointer").style,
+				prop: "transform",
+				keyFrames: [
+					{ value: -90, duration: 0 },
+					{ value: -90 + 6, duration: 1000 }
+				],
+				formatValue: animate.formats.css.rotate,
+				loopType: "increment",
+				interval: 1000,
+				loopTimes: 0
+			});
+		</script>
+	</div>
 </body>
-<script type="text/javascript">
-	animate.mulPush( [
-		{
-			target: document.getElementById("block1").style,
-			animateMode: "linear",
-			delay: 300
-		}, 
-		{
-			target: document.getElementById("block2").style,
-			animateMode: "fade"
-		}, 
-		{
-			target: document.getElementById("block3").style,
-			animateMode: "fadeIn"
-		}, 
-		{
-			target: document.getElementById("block4").style,
-			animateMode: "fadeOut"
-		}
-	], {
-		prop: "width",
-		formatValue: animate.formats.css.px,
-		keyFrames: [
-			{ value: 300, duration: 500 },
-			{ value: 150, duration: 500 }
-		],
-		loopType: "reverse",
-		loopTimes: 0,
-		interval: 50
-	});
-</script>
 </html>

@@ -19,7 +19,7 @@ formatValue: function(value) { return value; }, // 用于格式化输出结果
 getValue: function() { return this.target[this.prop]; }, // 获取值，这个函数实际上可能并没有用到
 setValue: function(value) { this.target[this.prop] = value; }, // 设置值
 dimension: 1, // 维度
-animateMode: "linear", // 动画插值模式，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
+interpolationType: "linear", // 动画插值类型，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
 interval: 30, // 每帧时长
 duration: 500, // 持续时间
 delay: 0, // 延迟时间
