@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<style type="text/css">
+	* { margin:0; padding:0; }
+</style>
+<script type="text/javascript" src="animate.js"></script>
+</head>
+<body style="background-color: #222">
+	<div id="block" style="height: 100px;"></div>
+</body>
+<script type="text/javascript">
+	animate.mulPush( [
+		{
+			prop: "width",
+			endValue: 400,
+			formatValue: animate.formats.css.px
+		}, {
+			prop: "backgroundColor",
+			startValue: [255, 56, 123],
+			endValue: [123, 56, 255],
+			formatValue: animate.formats.css.rgb
+		}
+	], {
+		target: document.getElementById("block").style,
+		duration: 1000,
+		loopType: "repeat",
+		loopTimes: 0
+	});
+</script>
+</html>
