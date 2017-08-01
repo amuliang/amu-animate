@@ -8,56 +8,69 @@
 # 属性方法
 
 ### 可配置属性：
-	id: 0,
-	target: null, // 必须的
-	prop: null, // 必须的
-	startValue: 0, // 默认为0，否则需要手动赋值
-	keyFrames: [], // 关键帧数组，如：[{value:10,duration:200},{value:50,duration:100}]
-	endValue: 0, // 指定结束值或者指定keyFrames
-	formatValue: function(value) { return value; }, // 用于格式化输出结果
-	getValue: function() { return this.target[this.prop]; }, // 获取值，这个函数实际上可能并没有用到
-	setValue: function(value) { this.target[this.prop] = value; }, // 设置值
-	dimension: 1, // 维度
-	animateMode: "linear", // 动画插值模式，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
-	interval: 30, // 每帧时长
-	duration: 500, // 持续时间
-	loopType: "none", // 循环类型：none无循环， repeat重复循环， increment累加循环，reverse反向循环
-	loopTimes: 1, // 0次,表示无限循环
-	interpolatingFunction: null // 自定义插值函数
+``` javascript
+id: 0,
+target: null, // 必须的
+prop: null, // 必须的
+startValue: 0, // 默认为0，否则需要手动赋值
+keyFrames: [], // 关键帧数组，如：[{value:10,duration:200},{value:50,duration:100}]
+endValue: 0, // 指定结束值或者指定keyFrames
+formatValue: function(value) { return value; }, // 用于格式化输出结果
+getValue: function() { return this.target[this.prop]; }, // 获取值，这个函数实际上可能并没有用到
+setValue: function(value) { this.target[this.prop] = value; }, // 设置值
+dimension: 1, // 维度
+animateMode: "linear", // 动画插值模式，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
+interval: 30, // 每帧时长
+duration: 500, // 持续时间
+delay: 0, // 延迟时间
+loopType: "none", // 循环类型：none无循环， repeat重复循环， increment累加循环，reverse反向循环
+loopTimes: 1, // 0次,表示无限循环
+interpolatingFunction: null // 自定义插值函数
+```
 ### 附加属性：
-	startTime: 0, // 开始时间
-	endTime: 0, // 结束时间
-	prevFrameTime: 0, // 上一帧动画时间
-	status: "animate" || "pause" || "finished"
+``` javascript
+startTime: 0, // 开始时间
+endTime: 0, // 结束时间
+prevFrameTime: 0, // 上一帧动画时间
+pauseTime: 0, // 暂停持续时间
+loopedTimes: 0, // 动画已经循环次数
+status: "ready" || "animate" || "looping" || "pause" || "finished",
+cache: {
+	pointer: 0,
+	baseValue: 0,
+	data: [0]
+}
+```
 ### 方法
-    // 添加
-	animate.push(config);
-    // 添加多个
-    animate.mulPush(configArr, commonConfig)
-	// 暂停
-	animate.pause();
-	// 继续
-	animate.continue();
-	// 停止animate运行
-	animate.stop();
-	// 运行animate
-	animate.start();
-	// animate重启，队列清空，重新执行一个setInterval
-	animate.restart();
-	// 停止某个动画
-	animate.finishById(id);
-	// 停止所有动画
-	animate.finishAll();
-	// 暂停某个动画
-	animate.pauseById(id);
-	// 继续某个动画
-	animate.continueById(id);
-	// 查找某个动画
-	animate.find(id);
-
+``` javascript
+// 添加
+animate.push(config);
+// 添加多个
+animate.mulPush(configArr, commonConfig)
+// 暂停
+animate.pause();
+// 继续
+animate.continue();
+// 停止animate运行
+animate.stop();
+// 运行animate
+animate.start();
+// animate重启，队列清空，重新执行一个setInterval
+animate.restart();
+// 停止某个动画
+animate.finishById(id);
+// 停止所有动画
+animate.finishAll();
+// 暂停某个动画
+animate.pauseById(id);
+// 继续某个动画
+animate.continueById(id);
+// 查找某个动画
+animate.find(id);
+```
 # 使用示例
 添加一个元素宽度的动画如下所示：
-```javascript
+``` javascript
 animate.push({
     target: document.getElementById("id").style,
     prop: "width",
@@ -66,7 +79,7 @@ animate.push({
 });
 ```
 同时改变一个元素的宽度和颜色，并进行循环：
-```javascript
+``` javascript
 animate.mulPush( [
     {
         prop: "width",
@@ -86,7 +99,7 @@ animate.mulPush( [
 });
 ```
 带关键帧的动画：
-```javascript
+``` javascript
 animate.push({
     target: document.getElementById("id").style,
     prop: "width",
