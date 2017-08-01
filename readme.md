@@ -3,6 +3,8 @@
 
 为了处理的高效，所有动画是统一管理的。核心函数为setInterval，没有这个函数也无法实现动画效果。脚本只会开一个setInterval，刷新周期为5毫秒，所有动画都在队列之中，当一个周期之后，队列将会被刷新一次，例如动画间隔为30毫秒的动画将会在六个周期之后被更新，而已完成的动画将会被排除在队列之外。
 
+在此版本中，循环的动画将会被缓存，这也意味着动画在循环阶段几乎不会消耗浏览器的计算资源。
+
 # 属性方法
 
 ### 可配置属性：
@@ -10,7 +12,8 @@
 	target: null, // 必须的
 	prop: null, // 必须的
 	startValue: 0, // 默认为0，否则需要手动赋值
-	endValue: 0, // 必须的
+	keyFrames: [], // 关键帧数组，如：[{value:10,duration:200},{value:50,duration:100}]
+	endValue: 0, // 指定结束值或者指定keyFrames
 	formatValue: function(value) { return value; }, // 用于格式化输出结果
 	getValue: function() { return this.target[this.prop]; }, // 获取值，这个函数实际上可能并没有用到
 	setValue: function(value) { this.target[this.prop] = value; }, // 设置值
@@ -54,16 +57,16 @@
 
 # 使用示例
 添加一个元素宽度的动画如下所示：
-```
+```javascript
 animate.push({
     target: document.getElementById("id").style,
     prop: "width",
     endValue: 200,
-    formatValue: animate.formats.css.px;
+    formatValue: animate.formats.css.px
 });
 ```
 同时改变一个元素的宽度和颜色，并进行循环：
-```
+```javascript
 animate.mulPush( [
     {
         prop: "width",
@@ -80,5 +83,17 @@ animate.mulPush( [
     duration: 1000,
     loopType: "repeat",
     loopTimes: 0
+});
+```
+带关键帧的动画：
+```javascript
+animate.push({
+    target: document.getElementById("id").style,
+    prop: "width",
+	keyFrames: [
+		{ value: 10, duration: 500 },
+		{ value: 20, duration: 300 }
+	],
+    formatValue: animate.formats.css.px
 });
 ```

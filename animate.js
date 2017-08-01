@@ -73,95 +73,79 @@ var interval = 5; // 默认每5毫秒刷新一次
 var animate_si = null; // setInterval句柄
 
 var animate = {
-	version: "v1.0.0",
+	version: "v1.1.0",
 	status: "normal",
 	count: 0,
 	queue: [],
 	interpolatingFunction: { // 插值函数
-		linear: function(animate, item) {
-			var startValue, endValue, newValue = [];
-			if(item.dimension == 1) {
-				startValue = [item.startValue];
-				endValue = [item.endValue];
-			}else {
-				startValue = item.startValue;
-				endValue = item.endValue;
-			}
+		linear: function(animate, item, currentSegment) {
+			var newValue = new Array(item.dimension);
 			for(var i = 0; i < item.dimension; i++) {
-				var surplusTime = animate.count >= item.endTime ? 0 : item.endTime - animate.count;
-				var surplusValue = (endValue[i] - startValue[i]) * surplusTime / (item.duration + 0.00000001);
-				newValue.push(endValue[i] - surplusValue);
+				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
+				var surplusValue = (currentSegment.endValue[i] - currentSegment.startValue[i]) * surplusTime / (currentSegment.duration + 0.00000001);
+				newValue[i] = currentSegment.endValue[i] - surplusValue;
 			}
-			return item.dimension == 1 ? newValue[0] : newValue;
+			return newValue;
 		},
-		fade: function(animate, item) {
-			var startValue, endValue, newValue = [];
-			if(item.dimension == 1) {
-				startValue = [item.startValue];
-				endValue = [item.endValue];
-			}else {
-				startValue = item.startValue;
-				endValue = item.endValue;
-			}
+		fade: function(animate, item, currentSegment) {
+			var newValue = new Array(item.dimension);
 			for(var i = 0; i < item.dimension; i++) {
-				var surplusTime = animate.count >= item.endTime ? 0 : item.endTime - animate.count;
-				var x = item.duration - surplusTime;
-				var y = item.endValue - item.startValue;
-				var w = 2 * Math.PI / (item.duration + 0.00000001);
-				var k = y / (item.duration + 0.00000001);
-				var value = - 0.75 * (k / w) * Math.sin(w * x) + k * x + item.startValue;
-				newValue.push(value);
+				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
+				var x = currentSegment.duration - surplusTime;
+				var y = currentSegment.endValue - currentSegment.startValue;
+				var w = 2 * Math.PI / (currentSegment.duration + 0.00000001);
+				var k = y / (currentSegment.duration + 0.00000001);
+				newValue[i] = currentSegment.startValue - 1 * (k / w) * Math.sin(w * x) + k * x;
 			}
-			return item.dimension == 1 ? newValue[0] : newValue;
+			return newValue;
 		},
-		fadeIn: function(animate, item) {
-			var startValue, endValue, newValue = [];
-			if(item.dimension == 1) {
-				startValue = [item.startValue];
-				endValue = [item.endValue];
-			}else {
-				startValue = item.startValue;
-				endValue = item.endValue;
-			}
+		fadeIn: function(animate, item, currentSegment) {
+			var newValue = new Array(item.dimension);
 			for(var i = 0; i < item.dimension; i++) {
-				var surplusTime = animate.count >= item.endTime ? 0 : item.endTime - animate.count;
-				var x = item.duration - surplusTime;
-				var y = item.endValue - item.startValue;
-				var w = Math.PI / (item.duration + 0.00000001);
-				var k = y / (item.duration + 0.00000001);
-				var value = - 0.75 * (k / w) * Math.sin(w * x) + k * x + item.startValue;
-				newValue.push(value);
+				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
+				var x = currentSegment.duration - surplusTime;
+				var y = currentSegment.endValue - currentSegment.startValue;
+				var w = Math.PI / (currentSegment.duration + 0.00000001);
+				var k = y / (currentSegment.duration + 0.00000001);
+				newValue[i] = currentSegment.startValue - 1 * (k / w) * Math.sin(w * x) + k * x;
 			}
-			return item.dimension == 1 ? newValue[0] : newValue;
+			return newValue;
 		},
-		fadeOut: function(animate, item) {
-			var startValue, endValue, newValue = [];
-			if(item.dimension == 1) {
-				startValue = [item.startValue];
-				endValue = [item.endValue];
-			}else {
-				startValue = item.startValue;
-				endValue = item.endValue;
-			}
+		fadeOut: function(animate, item, currentSegment) {
+			var newValue = new Array(item.dimension);
 			for(var i = 0; i < item.dimension; i++) {
-				var surplusTime = animate.count >= item.endTime ? 0 : item.endTime - animate.count;
-				var x = item.duration - surplusTime;
-				var y = item.endValue - item.startValue;
-				var w = 2 * Math.PI / (item.duration + 0.00000001);
-				var k = y / (item.duration + 0.00000001);
-				var value = - 0.75 * (k / w) * Math.sin(w * x + Math.PI) + k * x + item.startValue;
-				newValue.push(value);
+				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
+				var x = currentSegment.duration - surplusTime;
+				var y = currentSegment.endValue - currentSegment.startValue;
+				var w = Math.PI / (currentSegment.duration + 0.00000001);
+				var k = y / (currentSegment.duration + 0.00000001);
+				newValue[i] = currentSegment.startValue - 1 * (k / w) * Math.sin(w * x + Math.PI) + k * x;
 			}
-			return item.dimension == 1 ? newValue[0] : newValue;
+			return newValue;
 		},
-		custom: function(animate, item) {
+		custom: function(animate, item, currentSegment) {
 			return item.interpolatingFunction.call(animate, animate, item);
 		}
 	},
 	push: function(config) {
 		if(!config.target) return;
 		if(!config.prop) return;
-		if(typeof config.endValue == "undefined") return;
+		if(typeof config.endValue == "undefined") {
+			if(config.keyFrames && config.keyFrames.length) {
+				config.endValue = config.keyFrames[config.keyFrames.length - 1].value;
+			}else {
+				return;
+			}
+		}
+		if(typeof config.keyFrames == "undefined") {
+			config.keyFrames = [{ value: config.endValue, duration: config.duration || 500 }];
+		}else {
+			config.duration = 0;
+			for(var i = 0; i < config.keyFrames.length; i++) {
+				config.duration += config.keyFrames[i].duration;
+			}
+			config.endValue = config.keyFrames[config.keyFrames.length - 1].value;
+		}
 		if(!animate.interpolatingFunction[config.animateMode]) config.animateMode = "linear";
 		var dimension, startValue;
 		if(typeof config.endValue == "number") {
@@ -169,15 +153,17 @@ var animate = {
 			startValue = 0;
 		}else {
 			dimension = config.endValue.length;
-			startValue = [];
+			startValue = new Array(dimension);
 			for(var i = 0; i < dimension; i++) {
-				startValue.push(0);
+				startValue[i] = 0;
 			}
 		}
-		pushQueue(Object.assign({
+		
+		var item = Object.assign({
 			id: Date.now(),
 			startValue: startValue,
 			endValue: 0,
+			keyFrames: [],
 			formatValue: function(value) { return value; },
 			target: null,
 			prop: null,
@@ -186,11 +172,16 @@ var animate = {
 			dimension: dimension,
 			animateMode: "linear",
 			interval: 30,
+			delay: 0,
 			duration: 500,
 			loopType: "none", // none无循环， repeat重复循环， increment累加循环，reverse反向循环
 			loopTimes: 1, // 0次,表示无限循环
 			interpolatingFunction: null
-		}, config));
+		}, config);
+
+		item.setValue(item.startValue); // 设置初始值
+
+		pushQueue(item);
 	},
 	mulPush: function(pushArr, commonConfig) {
 		commonConfig = commonConfig || {};
@@ -256,12 +247,17 @@ function pushQueue(config) {
 	var item = config;
 	// 附加属性
 	Object.assign(item, {
-		startTime: animate.count,
-		endTime: animate.count + item.duration,
-		prevFrameTime: animate.count,
+		startTime: animate.count + item.delay,
+		endTime: animate.count + item.duration + item.delay,
+		prevFrameTime: animate.count + item.delay,
 		pauseTime: 0, // 暂停持续时间
 		loopedTimes: 0, // 动画已经循环次数
-		status: "animate"
+		status: "ready",
+		cache: {
+			pointer: 0,
+			baseValue: item.startValue,
+			data: [arrMinus(item.startValue, item.startValue)]
+		}
 	});
 	for(var i = 0; i < animate.queue.length; i++) {
 		if(item.target == animate.queue[i].target && item.prop == animate.queue[i].prop) {
@@ -283,11 +279,23 @@ function refreshQueue() {
 		var item = oldQueue[i];
 		if(item.status != "finished") {
 			newQueue.push(item);
+			if(item.status == "ready") {
+				if(item.startTime >= animate.count) {
+					item.status = "animate";
+				}
+			}
+			if(item.status == "animate") {
+				if(item.loopedTimes > 0) item.status = "looping";
+			}
 			if(item.status == "pause") {
 				dealWithPause(item);
 			}else if(animate.count - item.prevFrameTime >= item.interval) {
-				activeQueue.push(item);
-				values.push(getNewValue(item));
+					activeQueue.push(item);
+				if(item.status == "animate") {
+					values.push(getNewValue(item));
+				}else if(item.status == "looping") {
+					values.push(dealWithCache(item));
+				}
 				item.prevFrameTime = animate.count;
 				if(item.prevFrameTime >= item.endTime) {
 					dealWithLoop(item);
@@ -297,15 +305,45 @@ function refreshQueue() {
 	}
 	// 为了统一赋值，防止卡顿
 	for(var i = 0; i < activeQueue.length; i++) {
-		activeQueue[i].setValue(values[i]);
+		activeQueue[i].setValue(activeQueue[i].formatValue(values[i]));
 	}
 	animate.queue = newQueue;
 	return activeQueue;
 }
 // 计算得到新的插值
 function getNewValue(item) {
-	var value = animate.interpolatingFunction[item.animateMode](animate, item);
-	return item.formatValue(value);
+	var currentSegment = {
+		endTime: 0,
+		startValue: 0,
+		endValue: 0,
+		duration: 0
+	};
+	
+	var startValue = item.startValue, endValue = item.endValue;
+	var duration, endTime = item.startTime + item.pauseTime;
+	for(var i = 0; i < item.keyFrames.length; i++) {
+		endTime += item.keyFrames[i].duration;
+		if(endTime >= animate.count - item.interval) {
+			duration = item.keyFrames[i].duration;
+			endValue = item.keyFrames[i].value;
+			break;
+		}
+		startValue = item.keyFrames[i].value;
+	}
+	if(item.dimension == 1) {
+		startValue = [startValue];
+		endValue = [endValue];
+	}
+
+	currentSegment.endTime = endTime;
+	currentSegment.startValue = startValue;
+	currentSegment.endValue = endValue;
+	currentSegment.duration = duration;
+
+	var value = animate.interpolatingFunction[item.animateMode](animate, item, currentSegment);
+	value = item.dimension == 1 ? value[0] : value;
+	if(item.loopType != "none" && item.loopTimes != 1) item.cache.data.push(arrMinus(value, item.cache.baseValue));
+	return value;
 }
 // 处理循环
 function dealWithLoop(item) {
@@ -314,15 +352,14 @@ function dealWithLoop(item) {
 		item.startTime = animate.count;
 		item.endTime = item.startTime + item.duration;
 		if(item.loopType == "repeat") {
-			//
+			item.status = "looping";
 		}else if(item.loopType == "increment") {
-			var segment = item.endValue - item.startValue;
-			item.startValue = item.endValue;
-			item.endValue = item.endValue + segment;
+			item.status = "looping";
+			var temp = arrMinus(item.endValue, item.startValue);
+			item.cache.baseValue = arrPlus(item.cache.baseValue, temp); // 递增处理
 		}else if(item.loopType == "reverse") {
-			var temp = item.endValue;
-			item.endValue = item.startValue;
-			item.startValue = temp;
+			item.status = "looping";
+			item.cache.data.reverse(); // 将缓存数值反向处理
 		}else {
 			item.status = "finished";
 		}
@@ -341,6 +378,39 @@ function changeItemStatus(id, status) {
 function dealWithPause(item) {
 	item.pauseTime += interval;
 	item.endTime += interval;
+}
+// 处理缓存，缓存取值
+function dealWithCache(item) {
+	if(item.cache.data.length > 1) {
+		item.cache.pointer = (item.cache.pointer + 1) % item.cache.data.length;
+		if(item.cache.pointer == 0) {
+			item.cache.pointer++;
+		}
+	}
+	return arrPlus(item.cache.baseValue, item.cache.data[item.cache.pointer]);
+}
+
+function arrPlus(arr1, arr2) {
+	if(typeof arr1 == "number") {
+		return arr1 + arr2;
+	}else {
+		var newArr = new Array(arr1.length);
+		for(var i = 0; i < arr1.length; i++) {
+			newArr[i] = arr1[i] + arr2[i];
+		}
+		return newArr;
+	}
+}
+function arrMinus(arr1, arr2) {
+	if(typeof arr1 == "number") {
+		return arr1 - arr2;
+	}else {
+		var newArr = new Array(arr1.length);
+		for(var i = 0; i < arr1.length; i++) {
+			newArr[i] = arr1[i] - arr2[i];
+		}
+		return newArr;
+	}
 }
 
 animate.start();
@@ -371,7 +441,7 @@ animate.start();
 
 animate.formats = {
 	css: {
-		px: function(value) { return value + "px"; },
+		px: function(value) { return Math.round(value) + "px"; },
 		percent: function(value) { return value + "%"; },
 		em: function(value) { return value + "em"; },
 		rgb: function(value) { 
@@ -386,7 +456,7 @@ animate.formats = {
 				Math.round(value[1]) + "," + 
 				Math.round(value[2]) + "," + 
 				value[3] + ")";
-		},
+		}
 	}
 }
 

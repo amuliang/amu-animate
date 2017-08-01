@@ -9,25 +9,40 @@
 <script type="text/javascript" src="animate.js"></script>
 </head>
 <body style="background-color: #222">
-	<div id="block" style="height: 100px;"></div>
+	<div id="block1" style="background: blue;height: 100px;"></div>
+	<div id="block2" style="background: orange;height: 100px;"></div>
+	<div id="block3" style="background: pink;height: 100px;"></div>
+	<div id="block4" style="background: yellow;height: 100px;"></div>
 </body>
 <script type="text/javascript">
 	animate.mulPush( [
 		{
-			prop: "width",
-			endValue: 400,
-			formatValue: animate.formats.css.px
-		}, {
-			prop: "backgroundColor",
-			startValue: [255, 56, 123],
-			endValue: [123, 56, 255],
-			formatValue: animate.formats.css.rgb
+			target: document.getElementById("block1").style,
+			animateMode: "linear",
+			delay: 300
+		}, 
+		{
+			target: document.getElementById("block2").style,
+			animateMode: "fade"
+		}, 
+		{
+			target: document.getElementById("block3").style,
+			animateMode: "fadeIn"
+		}, 
+		{
+			target: document.getElementById("block4").style,
+			animateMode: "fadeOut"
 		}
 	], {
-		target: document.getElementById("block").style,
-		duration: 1000,
-		loopType: "repeat",
-		loopTimes: 0
+		prop: "width",
+		formatValue: animate.formats.css.px,
+		keyFrames: [
+			{ value: 300, duration: 500 },
+			{ value: 150, duration: 500 }
+		],
+		loopType: "reverse",
+		loopTimes: 0,
+		interval: 50
 	});
 </script>
 </html>
