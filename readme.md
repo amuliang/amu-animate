@@ -15,9 +15,10 @@ prop: null, // 必须的
 startValue: 0, // 默认为0，否则需要手动赋值
 keyFrames: [], // 关键帧数组，如：[{value:10,duration:200},{value:50,duration:100}]
 endValue: 0, // 指定结束值或者指定keyFrames
-formatValue: function(value) { return value; }, // 用于格式化输出结果
-getValue: function() { return this.target[this.prop]; }, // 获取值，这个函数实际上可能并没有用到
-setValue: function(value) { this.target[this.prop] = value; }, // 设置值
+formatValue: function(value, item, animate) { return value; }, // 用于格式化输出结果
+getValue: function() { return this.prop ? this.target[this.prop] : this.startValue; }, // 获取值，这个函数实际上可能并没有用到
+setValue: function(value, item, animate) { if(this.prop) this.target[this.prop] = value; }, // 设置值
+expression: function(value, item, animate) { return value; }, // 表达式
 dimension: 1, // 维度
 interpolationType: "linear", // 动画插值类型，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
 interval: 20, // 每帧时长,只能为5的倍数，因为每5毫秒刷新一次，非5的倍数没有意义
@@ -107,6 +108,21 @@ animate.push({
 		{ value: 10, duration: 500 },
 		{ value: 20, duration: 300 }
 	],
+    formatValue: animate.formats.css.px
+});
+```
+带表达式的动画：
+``` javascript
+animate.push({
+    target: document.getElementById("id").style,
+    prop: "width",
+	keyFrames: [
+		{ value: 10, duration: 500 },
+		{ value: 20, duration: 300 }
+	],
+    expression: function(value) {
+        return Math.floor(value / 2) * 2; // 只输出偶数值
+    },
     formatValue: animate.formats.css.px
 });
 ```

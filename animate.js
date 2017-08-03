@@ -71,6 +71,7 @@ if(!Object.assign) {
 /************************* animate 底层封装 *************************************************************/
 var interval = 5; // 默认每5毫秒刷新一次
 var animate_si = null; // setInterval句柄
+var default_id = 1000000000;
 
 var animate = {
 	version: "v1.1.1",
@@ -78,7 +79,7 @@ var animate = {
 	count: 0,
 	queue: [],
 	interpolationFunction: { // 插值函数
-		linear: function(animate, item, currentSegment) {
+		linear: function(currentSegment, item, animate) {
 			var newValue = new Array(item.dimension);
 			for(var i = 0; i < item.dimension; i++) {
 				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
@@ -87,7 +88,7 @@ var animate = {
 			}
 			return newValue;
 		},
-		fade: function(animate, item, currentSegment) {
+		fade: function(currentSegment, item, animate) {
 			var newValue = new Array(item.dimension);
 
 			for(var i = 0; i < item.dimension; i++) {
@@ -100,7 +101,7 @@ var animate = {
 			}
 			return newValue;
 		},
-		fadeIn: function(animate, item, currentSegment) {
+		fadeIn: function(currentSegment, item, animate) {
 			var newValue = new Array(item.dimension);
 			for(var i = 0; i < item.dimension; i++) {
 				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
@@ -112,7 +113,7 @@ var animate = {
 			}
 			return newValue;
 		},
-		fadeOut: function(animate, item, currentSegment) {
+		fadeOut: function(currentSegment, item, animate) {
 			var newValue = new Array(item.dimension);
 			for(var i = 0; i < item.dimension; i++) {
 				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
@@ -124,18 +125,18 @@ var animate = {
 			}
 			return newValue;
 		},
-		custom: function(animate, item, currentSegment) {
+		custom: function(currentSegment, item, animate) {
 			return item.interpolationFunction.call(animate, animate, item);
 		}
 	},
 	push: function(config) {
 		if(!config.target) return;
-		if(!config.prop) return;
+		// if(!config.prop) return;
 		if(typeof config.endValue == "undefined") {
 			if(config.keyFrames && config.keyFrames.length) {
 				config.endValue = config.keyFrames[config.keyFrames.length - 1].value;
 			}else {
-				return;
+				config.endValue = 0;
 			}
 		}
 		if(typeof config.keyFrames == "undefined") {
@@ -161,19 +162,21 @@ var animate = {
 			}
 		}
 		if(this.interval) {
-			this.interval = Math.round(this.interval / 5) * 5;
+			this.interval = Math.round(this.interval / interval) * interval;
+			if(this.interval == 0) this.interval = interval;
 		}
 		
 		var item = Object.assign({
-			id: Date.now(),
+			id: default_id++,
 			startValue: startValue,
 			endValue: 0,
 			keyFrames: [],
-			formatValue: function(value) { return value; },
+			formatValue: function(value, item, animate) { return value; },
 			target: null,
 			prop: null,
-			getValue: function() { return this.target[this.prop]; },
-			setValue: function(value) { this.target[this.prop] = value; },
+			getValue: function() { return this.prop ? this.target[this.prop] : this.startValue; },
+			setValue: function(value, item, animate) { if(this.prop) this.target[this.prop] = value; },
+			expression: function(value, item, animate) { return value; },
 			dimension: dimension,
 			interpolationType: "linear",
 			interval: interval * 4,
@@ -183,8 +186,6 @@ var animate = {
 			loopTimes: 1, // 0次,表示无限循环
 			interpolationFunction: null
 		}, config);
-
-		item.setValue(item.formatValue(item.startValue)); // 设置初始值
 
 		pushQueue(item);
 	},
@@ -261,8 +262,9 @@ function pushQueue(config) {
 		cache: {
 			pointer: 0,
 			baseValue: item.startValue,
-			data: [arrMinus(item.startValue, item.startValue)]
+			data: [arrMinus(item.expression(item.startValue, item, animate), item.startValue)]
 		}
+		//getCacheFrame: getCacheFrame
 	});
 	for(var i = 0; i < animate.queue.length; i++) {
 		if(item.target == animate.queue[i].target && item.prop == animate.queue[i].prop) {
@@ -270,6 +272,9 @@ function pushQueue(config) {
 			return;
 		}
 	}
+
+	item.setValue(item.formatValue(item.cache.data[0], item, animate), item, animate); // 设置初始值
+
 	// 添加到队列
 	animate.queue.push(item);
 }
@@ -310,7 +315,7 @@ function refreshQueue() {
 	}
 	// 为了统一赋值，防止卡顿
 	for(var i = 0; i < activeQueue.length; i++) {
-		activeQueue[i].setValue(activeQueue[i].formatValue(values[i]));
+		activeQueue[i].setValue(activeQueue[i].formatValue(values[i], activeQueue[i], animate), activeQueue[i], animate);
 	}
 	animate.queue = newQueue;
 	return activeQueue;
@@ -345,9 +350,9 @@ function getNewValue(item) {
 	currentSegment.endValue = endValue;
 	currentSegment.duration = duration;
 
-	var value = animate.interpolationFunction[item.interpolationType](animate, item, currentSegment);
-	value = item.dimension == 1 ? value[0] : value;
-	if(item.loopType != "none" && item.loopTimes != 1) item.cache.data.push(arrMinus(value, item.cache.baseValue));
+	var value = animate.interpolationFunction[item.interpolationType](currentSegment, item, animate);
+	value = item.expression(item.dimension == 1 ? value[0] : value, item, animate);
+	/*if(item.loopType != "none" && item.loopTimes != 1)*/ item.cache.data.push(arrMinus(value, item.cache.baseValue));
 	return value;
 }
 // 处理循环
@@ -418,6 +423,16 @@ function arrMinus(arr1, arr2) {
 		return newArr;
 	}
 }
+
+// function getCacheFrame(index) { // 0代表第一帧，-1代表最后一帧
+// 	var len = this.cache.data.length;
+// 	//var frameNum = this.loopedTimes > 0 ? len * this.loopedTimes + this.cache.pointer : len;
+// 	if(index > len - 1) index = len - 1;
+// 	else if(index < -len) index = 0;
+// 	else if(index < 0) index = index + len;
+// 	return this.cache.data[index];
+// }
+
 
 animate.start();
 

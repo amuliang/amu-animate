@@ -177,11 +177,11 @@
 		<style>
 			.clock-pointer {
 				position:absolute;
-				top:152px;
+				top:143px;
 				height:4px;
-				margin: 0 10px;
-				border-right:140px solid black;
-				padding-left:140px;
+				margin-left: 10px;
+				border-right:135px solid black;
+				padding-left:135px;
 			}
 		</style>
 		<h2>钟表动画</h2>
@@ -206,55 +206,60 @@
 	<div class="card">
 		<style>
 		</style>
-		<h2>自定义插值函数</h2>
-		<div style="position:relative;height:300px;">
-			<div id="circle-1" style="position:absolute;background-color:black;height:50px;width:50px;border-radius:25px;"></div>
+		<h2>表达式</h2>
+		<div style="position:relative;height:220px;">
+			<div id="circle-5" style="position:absolute;background-color:#eee;height:20px;width:20px;border-radius:10px;"></div>
+			<div id="circle-4" style="position:absolute;background-color:#ddd;height:20px;width:20px;border-radius:10px;"></div>
+			<div id="circle-3" style="position:absolute;background-color:#bbb;height:20px;width:20px;border-radius:10px;"></div>
+			<div id="circle-2" style="position:absolute;background-color:#555;height:20px;width:20px;border-radius:10px;"></div>
+			<div id="circle-1" style="position:absolute;background-color:#000;height:20px;width:20px;border-radius:10px;"></div>
 		</div>
 		<script type="text/javascript">
 			animate.mulPush([
 				{
-					id: "test1",
-					prop: "bottom",
-					keyFrames: [
-						{ value: 100, duration: 1000 }
-					],
-					data: {
-						v: 0,
-						h: 100,
-						a: -10
-					},
-					// interpolationType: "custom",
-					// interpolationFunction: function(control, item, seg) {
-					// 	var time = (control.count - item.startTime - item.pauseTime) / 1000;
-					// 	var value = item.data.h + 0.5 * item.data.a * time * time;
-					// 	return [value];
-					// },
-					loopType: "reverse",
-					formatValue: animate.formats.css.px,
-				},
+					target: document.getElementById("circle-1").style,
+					expression: function(value) {
+						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
+					}
+				}, 
 				{
-					id: "test2",
-					prop: "left",
-					keyFrames: [
-						{ value: 20, duration: 1000 }
-					],
-					setValue: function(value) {
-						var test1 = animate.findById("test1");
-						var test2 = animate.findById("test2");
-						if(test1 != null && test2 != null 
-						// && test1.cache.pointer != test2.cache.pointer
-						) {
-							//console.log(test1.cache.pointer, test2.cache.pointer);
-							//animate.pause();
-						}
-						return this.target[this.prop] = value;
-					},
-					formatValue: animate.formats.css.percent,
-					loopType: "reverse",
+					target: document.getElementById("circle-2").style,
+					expression: function(value, item, animate) {
+						value[0] -= 0.01;
+						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
+					}
+				}, 
+				{
+					target: document.getElementById("circle-3").style,
+					expression: function(value, item, animate) {
+						value[0] -= 0.02;
+						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
+					}
+				}, 
+				{
+					target: document.getElementById("circle-4").style,
+					expression: function(value, item, animate) {
+						value[0] -= 0.03;
+						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
+					}
+				}, 
+				{
+					target: document.getElementById("circle-5").style,
+					expression: function(value, item, animate) {
+						value[0] -= 0.04;
+						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
+					}
 				}
 			], {
-				target: document.getElementById("circle-1").style,
-				interval: 5,
+				keyFrames: [
+					{ value: [0, 100], duration: 0 },
+					{ value: [2 * Math.PI, 100], duration: 1000 }
+				],
+				setValue: function(value) {
+					this.target.left = animate.formats.css.px(value[0]);
+					this.target.bottom = animate.formats.css.px(value[1]);
+				},
+				loopType: "reverse",
 				loopTimes: 0
 			});
 		</script>
