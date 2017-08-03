@@ -20,12 +20,12 @@ getValue: function() { return this.target[this.prop]; }, // 获取值，这个�
 setValue: function(value) { this.target[this.prop] = value; }, // 设置值
 dimension: 1, // 维度
 interpolationType: "linear", // 动画插值类型，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
-interval: 30, // 每帧时长
+interval: 20, // 每帧时长,只能为5的倍数，因为每5毫秒刷新一次，非5的倍数没有意义
 duration: 500, // 持续时间
 delay: 0, // 延迟时间
 loopType: "none", // 循环类型：none无循环， repeat重复循环， increment累加循环，reverse反向循环
 loopTimes: 1, // 0次,表示无限循环
-interpolatingFunction: null // 自定义插值函数
+interpolationFunction: null // 自定义插值函数
 ```
 ### 附加属性：
 ``` javascript

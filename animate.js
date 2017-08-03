@@ -19,7 +19,7 @@
 	duration: 500, // 持续时间
 	loopType: "none", // 循环类型：none无循环， repeat重复循环， increment累加循环，reverse反向循环
 	loopTimes: 1, // 0次,表示无限循环
-	interpolatingFunction: null // 自定义插值函数
+	interpolationFunction: null // 自定义插值函数
 附加属性：
 	startTime: 0, // 开始时间
 	endTime: 0, // 结束时间
@@ -77,7 +77,7 @@ var animate = {
 	status: "normal",
 	count: 0,
 	queue: [],
-	interpolatingFunction: { // 插值函数
+	interpolationFunction: { // 插值函数
 		linear: function(animate, item, currentSegment) {
 			var newValue = new Array(item.dimension);
 			for(var i = 0; i < item.dimension; i++) {
@@ -89,6 +89,7 @@ var animate = {
 		},
 		fade: function(animate, item, currentSegment) {
 			var newValue = new Array(item.dimension);
+
 			for(var i = 0; i < item.dimension; i++) {
 				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
 				var x = currentSegment.duration - surplusTime;
@@ -124,7 +125,7 @@ var animate = {
 			return newValue;
 		},
 		custom: function(animate, item, currentSegment) {
-			return item.interpolatingFunction.call(animate, animate, item);
+			return item.interpolationFunction.call(animate, animate, item);
 		}
 	},
 	push: function(config) {
@@ -147,7 +148,7 @@ var animate = {
 			if(config.keyFrames[0].duration == 0) config.startValue = config.keyFrames[0].value;
 			config.endValue = config.keyFrames[config.keyFrames.length - 1].value;
 		}
-		if(!animate.interpolatingFunction[config.interpolationType]) config.interpolationType = "linear";
+		if(!animate.interpolationFunction[config.interpolationType]) config.interpolationType = "linear";
 		var dimension, startValue;
 		if(typeof config.endValue == "number") {
 			dimension = 1;
@@ -158,6 +159,9 @@ var animate = {
 			for(var i = 0; i < dimension; i++) {
 				startValue[i] = 0;
 			}
+		}
+		if(this.interval) {
+			this.interval = Math.round(this.interval / 5) * 5;
 		}
 		
 		var item = Object.assign({
@@ -172,12 +176,12 @@ var animate = {
 			setValue: function(value) { this.target[this.prop] = value; },
 			dimension: dimension,
 			interpolationType: "linear",
-			interval: 30,
+			interval: interval * 4,
 			delay: 0,
 			duration: 500,
 			loopType: "none", // none无循环， repeat重复循环， increment累加循环，reverse反向循环
 			loopTimes: 1, // 0次,表示无限循环
-			interpolatingFunction: null
+			interpolationFunction: null
 		}, config);
 
 		item.setValue(item.formatValue(item.startValue)); // 设置初始值
@@ -341,7 +345,7 @@ function getNewValue(item) {
 	currentSegment.endValue = endValue;
 	currentSegment.duration = duration;
 
-	var value = animate.interpolatingFunction[item.interpolationType](animate, item, currentSegment);
+	var value = animate.interpolationFunction[item.interpolationType](animate, item, currentSegment);
 	value = item.dimension == 1 ? value[0] : value;
 	if(item.loopType != "none" && item.loopTimes != 1) item.cache.data.push(arrMinus(value, item.cache.baseValue));
 	return value;
