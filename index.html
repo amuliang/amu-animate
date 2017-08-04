@@ -184,7 +184,7 @@
 				padding-left:135px;
 			}
 		</style>
-		<h2>钟表动画</h2>
+		<h2>demo 钟表动画</h2>
 		<div style="position:relative;width:300px; height:300px; border:5px solid black; border-radius:150px;">
 			<div id="clock-pointer" class="clock-pointer"></div>
 		</div>
@@ -205,14 +205,20 @@
 	</div>
 	<div class="card">
 		<style>
+			.expression-circle {
+				position:absolute;
+				height:20px;
+				width:20px;
+				border-radius:10px;
+			}
 		</style>
 		<h2>表达式</h2>
 		<div style="position:relative;height:220px;">
-			<div id="circle-5" style="position:absolute;background-color:#eee;height:20px;width:20px;border-radius:10px;"></div>
-			<div id="circle-4" style="position:absolute;background-color:#ddd;height:20px;width:20px;border-radius:10px;"></div>
-			<div id="circle-3" style="position:absolute;background-color:#bbb;height:20px;width:20px;border-radius:10px;"></div>
-			<div id="circle-2" style="position:absolute;background-color:#555;height:20px;width:20px;border-radius:10px;"></div>
-			<div id="circle-1" style="position:absolute;background-color:#000;height:20px;width:20px;border-radius:10px;"></div>
+			<div id="circle-5" class="expression-circle" style="background-color:#eee;"></div>
+			<div id="circle-4" class="expression-circle" style="background-color:#ddd;"></div>
+			<div id="circle-3" class="expression-circle" style="background-color:#bbb;"></div>
+			<div id="circle-2" class="expression-circle" style="background-color:#555;"></div>
+			<div id="circle-1" class="expression-circle" style="background-color:#000;"></div>
 		</div>
 		<script type="text/javascript">
 			animate.mulPush([
@@ -221,19 +227,19 @@
 				}, 
 				{
 					target: document.getElementById("circle-2").style,
-					delay: 2
-				}, 
-				{
-					target: document.getElementById("circle-3").style,
 					delay: 4
 				}, 
 				{
+					target: document.getElementById("circle-3").style,
+					delay: 8
+				}, 
+				{
 					target: document.getElementById("circle-4").style,
-					delay: 6
+					delay: 12
 				}, 
 				{
 					target: document.getElementById("circle-5").style,
-					delay: 8
+					delay: 16
 				}
 			], {
 				keyFrames: [
@@ -251,6 +257,68 @@
 				interval: 5,
 				loopTimes: 0
 			});
+		</script>
+	</div>
+	<div class="card" id="drag-demo" style="position:relative;height:220px;background-color:white">
+		<style>
+			.drag-circle {
+				position:absolute;
+				height:50px;
+				width:50px;
+				border-radius:25px;
+				cursor: pointer;
+			}
+		</style>
+		<h2>demo 拖动</h2>
+		<div class="drag-circle" style="border:2px dotted black; left:100px; top:100px;"></div>
+		<div id="drag-circle" class="drag-circle" style="border:2px solid black; background-color:blueviolet;"></div>
+		<script type="text/javascript">
+			;(function() {
+				var drag_demo = document.getElementById("drag-demo");
+				var drag_circle = document.getElementById("drag-circle");
+				var canMove = false;
+				var startPos = [0, 100];
+				var pageStartPos = [];
+				var animate_config = {
+					target: drag_circle.style,
+					keyFrames: [
+						{ value: [0, 100], duration: 0 },
+						{ value: [100, 100], duration: 500 }
+					],
+					setValue: function(value) {
+						setPos(this.target, value);
+					},
+					interpolationType: "fadeOut"
+				};
+				animate.push(animate_config);
+				drag_circle.addEventListener("mousedown", function(event) {
+					canMove = true;
+					pageStartPos = [event.pageX, event.pageY];
+					startPos = getPos(drag_circle.style);
+				});
+				drag_demo.addEventListener("mousemove", function(event) {
+					if(canMove) {
+						setPos(drag_circle.style, [event.pageX - pageStartPos[0] + startPos[0], 
+						event.pageY - pageStartPos[1] + startPos[1]]);
+					}
+				});
+				drag_demo.addEventListener("mouseup", function(event) {
+					canMove = false;
+					startPos = [
+						event.pageX - pageStartPos[0] + startPos[0],
+						event.pageY - pageStartPos[1] + startPos[1],
+					];
+					animate_config.keyFrames[0].value = startPos;
+					animate.push(animate_config);
+				});
+				function setPos(target, value) {
+					target.left = animate.formats.css.px(value[0]);
+					target.top = animate.formats.css.px(value[1]);
+				}
+				function getPos(target) {
+					return [parseInt(target.left.match(/\d*\.*\d*/)[0]), parseInt(target.top.match(/\d*\.*\d*/)[0])];
+				}
+			})();
 		</script>
 	</div>
 </body>

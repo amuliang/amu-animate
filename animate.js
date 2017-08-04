@@ -1,54 +1,8 @@
 /*
-作者：阿木亮，QQ：982632988，时间：2017/8/1
+作者：阿木亮，QQ：982632988，时间：2017/8/5
 
 为了实现大量的动画效果，统一管理动画，但是只提供最底层的封装
 如果你有兴趣，可以自由拓展该脚本，并进行更高级别的封装
-
-可配置属性：
-	id: 0,
-	target: null, // 必须的
-	prop: null, // 必须的
-	startValue: 0, // 默认为0，否则需要手动赋值
-	endValue: 0, // 必须的
-	formatValue: function(value) { return value; }, // 用于格式化输出结果
-	getValue: function() { return this.target[this.prop]; }, // 获取值，这个函数实际上可能并没有用到
-	setValue: function(value) { this.target[this.prop] = value; }, // 设置值
-	dimension: 1, // 维度
-	interpolationType: "linear", // 动画插值模式，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
-	interval: 30, // 每帧时长
-	duration: 500, // 持续时间
-	loopType: "none", // 循环类型：none无循环， repeat重复循环， increment累加循环，reverse反向循环
-	loopTimes: 1, // 0次,表示无限循环
-	interpolationFunction: null // 自定义插值函数
-附加属性：
-	startTime: 0, // 开始时间
-	endTime: 0, // 结束时间
-	prevFrameTime: 0, // 上一帧动画时间
-	status: "animate" || "pause" || "finished"
-
-示例：
-	// 添加动画
-	animate.push({
-		target: document.getElementById("id1").style,
-		prop: "width",
-		endValue: 200
-	});
-	// 暂停动画
-	animate.pause();
-	// 继续动画
-	animate.continue();
-	// 停止animate运行
-	animate.stop();
-	// 运行animate
-	animate.start();
-	// animate重启
-	animate.restart();
-	// 停止某个动画
-	animate.finishById(id);
-	// 停止所有动画
-	animate.finishAll();
-	// 查找某个动画
-	animate.find(id);
  */
 // 兼容处理
 if(!Object.assign) {
@@ -74,7 +28,7 @@ var animate_si = null; // setInterval句柄
 var default_id = 1000000000;
 
 var animate = {
-	version: "v1.2.1",
+	version: "v1.2.2",
 	status: "normal",
 	count: 0,
 	queue: [],
@@ -95,10 +49,10 @@ var animate = {
 			for(var i = 0; i < item.dimension; i++) {
 				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
 				var x = currentSegment.duration - surplusTime;
-				var y = currentSegment.endValue - currentSegment.startValue;
+				var y = currentSegment.endValue[i] - currentSegment.startValue[i];
 				var w = 2 * Math.PI / (currentSegment.duration + 0.00000001);
 				var k = y / (currentSegment.duration + 0.00000001);
-				newValue[i] = currentSegment.startValue - 1 * (k / w) * Math.sin(w * x) + k * x;
+				newValue[i] = currentSegment.startValue[i] - 1 * (k / w) * Math.sin(w * x) + k * x;
 			}
 			return newValue;
 		},
@@ -107,10 +61,10 @@ var animate = {
 			for(var i = 0; i < item.dimension; i++) {
 				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
 				var x = currentSegment.duration - surplusTime;
-				var y = currentSegment.endValue - currentSegment.startValue;
+				var y = currentSegment.endValue[i] - currentSegment.startValue[i];
 				var w = Math.PI / (currentSegment.duration + 0.00000001);
 				var k = y / (currentSegment.duration + 0.00000001);
-				newValue[i] = currentSegment.startValue - 1 * (k / w) * Math.sin(w * x) + k * x;
+				newValue[i] = currentSegment.startValue[i] - 1 * (k / w) * Math.sin(w * x) + k * x;
 			}
 			return newValue;
 		},
@@ -119,10 +73,10 @@ var animate = {
 			for(var i = 0; i < item.dimension; i++) {
 				var surplusTime = animate.count >= currentSegment.endTime ? 0 : currentSegment.endTime - animate.count;
 				var x = currentSegment.duration - surplusTime;
-				var y = currentSegment.endValue - currentSegment.startValue;
+				var y = currentSegment.endValue[i] - currentSegment.startValue[i];
 				var w = Math.PI / (currentSegment.duration + 0.00000001);
 				var k = y / (currentSegment.duration + 0.00000001);
-				newValue[i] = currentSegment.startValue - 1 * (k / w) * Math.sin(w * x + Math.PI) + k * x;
+				newValue[i] = currentSegment.startValue[i] - 1 * (k / w) * Math.sin(w * x + Math.PI) + k * x;
 			}
 			return newValue;
 		},
@@ -365,7 +319,7 @@ function getNewValue(item) {
 function dealWithLoop(item) {
 	item.loopedTimes++;
 	if(item.loopType != "none" && (item.loopTimes == 0 || item.loopedTimes < item.loopTimes)) {
-		item.startTime = animate.count;
+		item.startTime = item.prevFrameTime;
 		item.endTime = item.startTime + item.duration;
 		if(item.loopType == "repeat") {
 			item.status = "looping";
