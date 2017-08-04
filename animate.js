@@ -162,10 +162,13 @@ var animate = {
 				startValue[i] = 0;
 			}
 		}
-		if(this.interval) {
-			this.interval = Math.round(this.interval / interval) * interval;
-			if(this.interval == 0) this.interval = interval;
+		if(config.interval) {
+			config.interval = Math.round(config.interval / interval) * interval;
+			if(config.interval == 0) config.interval = interval;
 		}
+		// if(config.delay) {
+		// 	config.delay = Math.round(config.delay / interval) * interval;
+		// }
 		
 		var item = Object.assign({
 			id: default_id++,
@@ -254,6 +257,7 @@ function pushQueue(config) {
 	// 基础属性
 	var item = config;
 	// 附加属性
+	var baseValue = item.expression(item.startValue, item, animate);
 	Object.assign(item, {
 		startTime: animate.count + item.delay,
 		endTime: animate.count + item.duration + item.delay,
@@ -263,8 +267,8 @@ function pushQueue(config) {
 		status: "ready",
 		cache: {
 			pointer: 0,
-			baseValue: item.startValue,
-			data: [arrMinus(item.expression(item.startValue, item, animate), item.startValue)]
+			baseValue: baseValue,
+			data: [arrMinus(baseValue, baseValue)]
 		}
 		//getCacheFrame: getCacheFrame
 	});
@@ -275,7 +279,7 @@ function pushQueue(config) {
 		}
 	}
 
-	item.setValue(item.formatValue(item.cache.data[0], item, animate), item, animate); // 设置初始值
+	item.setValue(item.formatValue(baseValue, item, animate), item, animate); // 设置初始值
 
 	// 添加到队列
 	animate.queue.push(item);
@@ -367,7 +371,7 @@ function dealWithLoop(item) {
 			item.status = "looping";
 		}else if(item.loopType == "increment") {
 			item.status = "looping";
-			var temp = arrMinus(item.endValue, item.startValue);
+			var temp = arrMinus(item.cache.data[item.cache.data.length - 1], item.cache.data[0]);
 			item.cache.baseValue = arrPlus(item.cache.baseValue, temp); // 递增处理
 		}else if(item.loopType == "reverse") {
 			item.status = "looping";

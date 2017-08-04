@@ -218,48 +218,37 @@
 			animate.mulPush([
 				{
 					target: document.getElementById("circle-1").style,
-					expression: function(value) {
-						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
-					}
 				}, 
 				{
 					target: document.getElementById("circle-2").style,
-					expression: function(value, item, animate) {
-						value[0] -= 0.01;
-						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
-					}
+					delay: 2
 				}, 
 				{
 					target: document.getElementById("circle-3").style,
-					expression: function(value, item, animate) {
-						value[0] -= 0.02;
-						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
-					}
+					delay: 4
 				}, 
 				{
 					target: document.getElementById("circle-4").style,
-					expression: function(value, item, animate) {
-						value[0] -= 0.03;
-						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
-					}
+					delay: 6
 				}, 
 				{
 					target: document.getElementById("circle-5").style,
-					expression: function(value, item, animate) {
-						value[0] -= 0.04;
-						return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
-					}
+					delay: 8
 				}
 			], {
 				keyFrames: [
 					{ value: [0, 100], duration: 0 },
 					{ value: [2 * Math.PI, 100], duration: 1000 }
 				],
+				expression: function(value) {
+					return [value[0] * 100, value[1] + 100 * Math.sin(value[0])];
+				},
 				setValue: function(value) {
 					this.target.left = animate.formats.css.px(value[0]);
 					this.target.bottom = animate.formats.css.px(value[1]);
 				},
 				loopType: "reverse",
+				interval: 5,
 				loopTimes: 0
 			});
 		</script>
