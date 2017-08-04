@@ -5,6 +5,12 @@
 
 在此版本中，循环的动画将会被缓存，这也意味着动画在循环阶段几乎不会消耗浏览器的计算资源。
 
+数值计算及赋值分四个步骤，每一个步骤都可以人为进行干涉：
+- 插值计算 interpolationFunction：根据基础属性计算插值，如linear，fade；在循环状态，插值计算结果将从缓存中读取出来；
+- 表达式计算 expression：在插值运算结果的基础上再次进行处理；
+- 格式化 formatValue：将表达式运算结果进行处理，如对于元素的宽度值10将被处理成"10px",此时值可能无法再参与计算；
+- 赋值 setValue：将格式化结果赋值给目标属性。
+
 # 属性方法
 
 ### 可配置属性：
@@ -20,13 +26,14 @@ getValue: function() { return this.prop ? this.target[this.prop] : this.startVal
 setValue: function(value, item, animate) { if(this.prop) this.target[this.prop] = value; }, // 设置值
 expression: function(value, item, animate) { return value; }, // 表达式
 dimension: 1, // 维度
-interpolationType: "linear", // 动画插值类型，linear，fade，fadeIn，fadeOut，custom（规定使用自定插值函数）
+interpolationType: "linear", // 动画插值类型，linear，fade，fadeIn，fadeOut，custom（将使用自定插值函数interpolationFunction）
 interval: 20, // 每帧时长,只能为5的倍数，因为每5毫秒刷新一次，非5的倍数没有意义
 duration: 500, // 持续时间
 delay: 0, // 延迟时间
 loopType: "none", // 循环类型：none无循环， repeat重复循环， increment累加循环，reverse反向循环
 loopTimes: 1, // 0次,表示无限循环
-interpolationFunction: null // 自定义插值函数
+interpolationFunction: null, // 自定义插值函数
+allowCache: false // 允许缓存，对于循环动画将自动缓存，非循环动画是否缓存取决于该值
 ```
 ### 附加属性：
 ``` javascript

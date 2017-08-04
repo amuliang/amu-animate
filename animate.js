@@ -74,10 +74,11 @@ var animate_si = null; // setInterval句柄
 var default_id = 1000000000;
 
 var animate = {
-	version: "v1.1.1",
+	version: "v1.2.1",
 	status: "normal",
 	count: 0,
 	queue: [],
+	allowCache: false,
 	interpolationFunction: { // 插值函数
 		linear: function(currentSegment, item, animate) {
 			var newValue = new Array(item.dimension);
@@ -184,7 +185,8 @@ var animate = {
 			duration: 500,
 			loopType: "none", // none无循环， repeat重复循环， increment累加循环，reverse反向循环
 			loopTimes: 1, // 0次,表示无限循环
-			interpolationFunction: null
+			interpolationFunction: null,
+			allowCache: animate.allowCache
 		}, config);
 
 		pushQueue(item);
@@ -352,7 +354,7 @@ function getNewValue(item) {
 
 	var value = animate.interpolationFunction[item.interpolationType](currentSegment, item, animate);
 	value = item.expression(item.dimension == 1 ? value[0] : value, item, animate);
-	/*if(item.loopType != "none" && item.loopTimes != 1)*/ item.cache.data.push(arrMinus(value, item.cache.baseValue));
+	if(item.allowCache || item.loopType != "none" && item.loopTimes != 1) item.cache.data.push(arrMinus(value, item.cache.baseValue));
 	return value;
 }
 // 处理循环
