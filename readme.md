@@ -17,6 +17,7 @@
 ``` javascript
 id: 0,
 target: null, // 必须的
+targets: [], // 必须的，多个目标。target和targets必须有一个被指定
 prop: null, // 必须的
 startValue: 0, // 默认为0，否则需要手动赋值
 keyFrames: [], // 关键帧数组，如：[{value:10,duration:200},{value:50,duration:100}]

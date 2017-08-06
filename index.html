@@ -34,7 +34,6 @@
 		width:200px;
 		line-height:50px;
 		background-color:cornflowerblue;
-		margin:20px auto;
 		text-align:center;
 		font-weight: 700;
 		color:white;
@@ -45,14 +44,156 @@
 		color:gold;
 		background-color:mediumslateblue;
 	}
+	.row {
+		float: left;
+		width: 100%;
+	}
+	.text-center {
+		text-align: center;
+	}
+	.align-center {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.chapter {
+		padding-top: 50px;
+	}
+	.chapter-title {
+		font-size: 30px;
+	}
+	.anchor {
+		width:20px;
+		border: 10px solid #000;
+		border-bottom-color: rgba(0,0,0,0);
+		border-left-color: rgba(0,0,0,0);
+		border-right-color: rgba(0,0,0,0);
+	}
+	.my-1 {
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	.my-2 {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	.my-3 {
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+	.my-4 {
+		margin-top: 50px;
+		margin-bottom: 50px;
+	}
+	.nav-list {
+		list-style-type: none;
+		float: right;
+	}
+	.nav-list li {
+		float: left;
+		line-height: 50px;
+		color: #fff;
+		padding: 0 20px;
+		cursor: pointer;
+	}
+	.nav-list li:hover {
+		background-color: #ffc9a9;
+	}
+	.nav-logo {
+		float: left;
+		line-height: 50px;
+		font-size: 20px;
+		color: #fff;
+		padding: 0 20px;
+	}
+	p {
+		margin: 20px 40px;
+		text-indent:2em;
+	}
+	.logo-name {
+		color: #fff;
+		font-size: 50px;
+		width: 500px;
+	}
 </style>
 <script type="text/javascript" src="animate.js"></script>
+<script type="text/javascript">
+	function slideToAnchor(target) {
+		var html = document.getElementsByTagName("html")[0];
+		animate.mulPush([
+			{ target: document.body, startValue: document.body.scrollTop },
+			{ target: html, startValue: html.scrollTop }
+		], {
+			prop: "scrollTop",
+			endValue: document.getElementById(target).offsetTop - 50,
+			interpolationType: "fade"
+		});
+	}
+</script>
 </head>
 <body style="background-color:#f6f6f6">
-	<div style="float:left;width:100%;background-color:lightsalmon;">
-		<div style="height:400px;"></div>
-		<a href="https://github.com/amuliang/amu-animate/" class="github">GITHUB</a>
+	<div class="row" style="position:fixed;top:0;height:50px;background-color:lightsalmon;border-bottom:1px solid #ffa9a9;z-index:9999">
+		<span class="nav-logo">amu-animate</span>
+		<ul class="nav-list">
+			<li onclick="slideToAnchor('github')">github</li>
+			<li onclick="slideToAnchor('intro')">介绍</li>
+			<li onclick="slideToAnchor('demo')">demo</li>
+		</ul>
 	</div>
+	<div id="github" class="row chapter" style="background-color:lightsalmon;">
+		<div class="row" style="height:200px;">
+			<div class="logo-name align-center text-center" style="margin-top:80px;">
+				<span id="logo-name">amu-animate</span><span id="logo-cursor" style="height:50px;border-left:2px solid #fff;"></span>
+			</div>
+		</div>
+		<div class="row">
+			<a href="https://github.com/amuliang/amu-animate/" class="github align-center my-4">GITHUB</a>
+		</div>
+		<script type="text/javascript">
+			;(function(){
+				var name = "amu-animate";
+				animate.push({
+					target: document.getElementById("logo-name"),
+					prop: "innerHTML",
+					keyFrames: [
+						{ value: 0, duration: 1000 },
+						{ value: 4, duration: 1000 },
+						{ value: 4, duration: 1000 },
+						{ value: name.length, duration: 1000 }
+					],
+					expression: function(value) {
+						return name.substring(0, Math.round(value));
+					}
+				});
+				animate.push({
+					target: document.getElementById("logo-cursor").style,
+					prop: "visibility",
+					keyFrames: [
+						{ value: 0, duration: 500 },
+						{ value: 1, duration: 500 }
+					],
+					expression: function(value) {
+						return value == 1 ? "hidden" : "visible";
+					},
+					interval: 500,
+					loopType: "repeat",
+					loopTimes: 0
+				});
+			})();
+		</script>
+	</div>
+	<div id="intro" class="row text-center chapter">
+		<div class="chapter-title">介绍</div>
+		<div class="anchor align-center"></div>
+	</div>
+	<div class="row">
+		<p>amu-animte设计初衷是为了满足浏览器页面的动画效果，支持IE、谷歌、火狐，设计的最后脚本更为通用，可以应用到任何js对象。</p>
+		<p>amu-animate看起来可能并不华丽，它并没有预设好的效果，您更多的应该将其理解为一个动画小引擎，它可能并不适合完全不懂css3 animation动画和javascript的人使用。暂且不用css3 animation做动画，试试amu-animate，您一开始可能认为它是css3 animation的javascript版本，不过不久您就会获得意外的惊喜，它使您的动画更加易于掌控。</p>
+	</div>
+	<div id="demo" class="row text-center chapter">
+		<div class="chapter-title">DEMO</div>
+		<div class="anchor align-center"></div>
+	</div>
+
 	<div class="card">
 		<h2>插值方式</h2>
 		<div id="interpolationType-linear" style="background: greenyellow;">linear 线性</div>
@@ -158,6 +299,36 @@
 		</script>
 	</div>
 	<div class="card">
+		<style>
+			.clock-pointer {
+				position:absolute;
+				top:143px;
+				height:4px;
+				margin-left: 10px;
+				border-right:135px solid black;
+				padding-left:135px;
+			}
+		</style>
+		<h2>demo 钟表动画</h2>
+		<div style="position:relative;width:300px; height:300px; border:5px solid black; border-radius:150px;">
+			<div id="clock-pointer" class="clock-pointer"></div>
+		</div>
+		<script type="text/javascript">
+			animate.push({
+				target: document.getElementById("clock-pointer").style,
+				prop: "transform",
+				keyFrames: [
+					{ value: -90, duration: 0 },
+					{ value: -90 + 6, duration: 1000 }
+				],
+				formatValue: animate.formats.css.rotate,
+				loopType: "increment",
+				interval: 1000,
+				loopTimes: 0
+			});
+		</script>
+	</div>
+	<div class="card">
 		<h2>单动画控制</h2>
 		<div id="red-block" style="background-color:red; width:20px; height:20px;"></div>
 		<div id="blue-block" style="background-color:blue; width:20px; height:20px;"></div>
@@ -193,36 +364,6 @@
 				if(item.status == "pause") animate.continueById("blue-block-item");
 				else animate.pauseById("blue-block-item");
 			}
-		</script>
-	</div>
-	<div class="card">
-		<style>
-			.clock-pointer {
-				position:absolute;
-				top:143px;
-				height:4px;
-				margin-left: 10px;
-				border-right:135px solid black;
-				padding-left:135px;
-			}
-		</style>
-		<h2>demo 钟表动画</h2>
-		<div style="position:relative;width:300px; height:300px; border:5px solid black; border-radius:150px;">
-			<div id="clock-pointer" class="clock-pointer"></div>
-		</div>
-		<script type="text/javascript">
-			animate.push({
-				target: document.getElementById("clock-pointer").style,
-				prop: "transform",
-				keyFrames: [
-					{ value: -90, duration: 0 },
-					{ value: -90 + 6, duration: 1000 }
-				],
-				formatValue: animate.formats.css.rotate,
-				loopType: "increment",
-				interval: 1000,
-				loopTimes: 0
-			});
 		</script>
 	</div>
 	<div class="card">

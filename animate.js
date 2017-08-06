@@ -85,7 +85,7 @@ var animate = {
 		}
 	},
 	push: function(config) {
-		if(!config.target) return;
+		if(!config.target && !config.targets) return;
 		// if(!config.prop) return;
 		if(typeof config.endValue == "undefined") {
 			if(config.keyFrames && config.keyFrames.length) {
@@ -146,7 +146,14 @@ var animate = {
 			allowCache: animate.allowCache
 		}, config);
 
-		pushQueue(item);
+		if(item.targets) {
+			for(var i = 0; i < item.targets.length; i++) {
+				item.target = item.targes[i];
+				pushQueue(item);
+			}
+		}else {
+			pushQueue(item);
+		}
 	},
 	mulPush: function(pushArr, commonConfig) {
 		commonConfig = commonConfig || {};
@@ -361,24 +368,29 @@ function dealWithCache(item) {
 	return arrPlus(item.cache.baseValue, item.cache.data[item.cache.pointer]);
 }
 
-function arrPlus(arr1, arr2) {
-	if(typeof arr1 == "number") {
-		return arr1 + arr2;
+function arrPlus(base, value) {
+	if(typeof base == "string") {
+		return value;
+	}else if(typeof base == "number") {
+		return base + value;
 	}else {
-		var newArr = new Array(arr1.length);
-		for(var i = 0; i < arr1.length; i++) {
-			newArr[i] = arr1[i] + arr2[i];
+		var newArr = new Array(base.length);
+		for(var i = 0; i < base.length; i++) {
+			newArr[i] = base[i] + value[i];
 		}
 		return newArr;
 	}
 }
-function arrMinus(arr1, arr2) {
-	if(typeof arr1 == "number") {
-		return arr1 - arr2;
+function arrMinus(value, base) {
+	if(typeof value == "string") {
+		return value;
+	}else 
+	if(typeof value == "number") {
+		return value - base;
 	}else {
-		var newArr = new Array(arr1.length);
-		for(var i = 0; i < arr1.length; i++) {
-			newArr[i] = arr1[i] - arr2[i];
+		var newArr = new Array(value.length);
+		for(var i = 0; i < value.length; i++) {
+			newArr[i] = value[i] - base[i];
 		}
 		return newArr;
 	}
