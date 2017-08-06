@@ -8,6 +8,7 @@
 	.card {
 		float: left;
 		width: 48.5%;
+		background-color: #fff;
 		margin: 1% 0 0 1%;
 		padding: 10px 5px;
 		border: 1px solid #ddd;
@@ -26,11 +27,32 @@
 		padding: 5px 10px;
 		border: 0;
 		border-radius: 5px;
+		
+	}
+	.github {
+		display: block;
+		width:200px;
+		line-height:50px;
+		background-color:cornflowerblue;
+		margin:20px auto;
+		text-align:center;
+		font-weight: 700;
+		color:white;
+		border-radius:25px;
+		cursor: pointer;
+	}
+	.github:hover {
+		color:gold;
+		background-color:mediumslateblue;
 	}
 </style>
 <script type="text/javascript" src="animate.js"></script>
 </head>
-<body>
+<body style="background-color:#f6f6f6">
+	<div style="float:left;width:100%;background-color:lightsalmon;">
+		<div style="height:400px;"></div>
+		<a href="https://github.com/amuliang/amu-animate/" class="github">GITHUB</a>
+	</div>
 	<div class="card">
 		<h2>插值方式</h2>
 		<div id="interpolationType-linear" style="background: greenyellow;">linear 线性</div>
