@@ -28,7 +28,7 @@ var animate_si = null; // setInterval句柄
 var default_id = 1000000000;
 
 var animate = {
-	version: "v1.2.2",
+	version: "v1.2.3",
 	status: "normal",
 	count: 0,
 	queue: [],
